@@ -1,18 +1,21 @@
 import json
+import os
 from pathlib import Path
 
 from models import Recipe
 
-SAVE_DIR = Path("../recipes")
+SAVE_DIR = Path(os.path.abspath("recipes"))
 SAVE_DIR.mkdir(exist_ok=True)
 
 def save_recipe(recipe: Recipe):
     filename = recipe.title + ".json"
-    path = SAVE_DIR / filename
+    path = os.path.join(SAVE_DIR, filename)
+    print(f"Saving recipe {recipe.title} to {path}")
 
     with open(path, "w") as f:
         json.dump(
-            recipe,
+            recipe.model_dump(),
             f,
             indent=4
         )
+        print(f"Recipe {recipe.title} saved to {path}")
