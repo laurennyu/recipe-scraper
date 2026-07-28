@@ -66,7 +66,7 @@ recipe-scraper/
 
 ## Components
 
-#### 1. Chrome Extension
+### Chrome Extension
 
 The extension provides a button in the popup UI. When clicked, it queries the active tab and sends a message to the content script.
 
@@ -81,11 +81,11 @@ with:
 - the current page URL
 - the page HTML
 
-#### 2. FastAPI Backend
+### FastAPI Backend
 
 The backend exposes a POST endpoint in [backend/main.py](backend/main.py) that receives the request and routes it to the parser.
 
-#### 3. Recipe Parser
+### Recipe Parser
 
 The parser in [backend/parser.py](backend/parser.py) uses:
 
@@ -102,7 +102,7 @@ It returns a recipe object with:
 - image
 - source
 
-#### 4. Storage
+### Storage
 
 The storage layer in [backend/storage.py](backend/storage.py) writes each recipe as a JSON file into the recipes folder. The current filename format is based on the recipe title.
 
