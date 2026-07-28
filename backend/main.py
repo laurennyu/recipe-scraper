@@ -1,23 +1,17 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 
+from models import RecipeRequest
 from parser import parse_recipe
 from storage import save_recipe
 
 app = FastAPI()
 
-class RecipeRequest(BaseModel):
-    url: str
-    html: str
-
 @app.post("/save")
 def save(request: RecipeRequest):
+    # Parse the recipe from the request
+    recipe = parse_recipe(request)
 
-    recipe = parse_recipe(
-        request.url,
-        request.html
-    )
-
+    # Save the recipe to storage
     save_recipe(recipe)
 
     return {

@@ -1,10 +1,12 @@
 from recipe_scrapers import scrape_html
 
-def parse_recipe(url, html):
+from models import RecipeRequest
+
+def parse_recipe(request: RecipeRequest):
 
     scraper = scrape_html(
-        html,
-        org_url=url
+        request.html,
+        org_url=request.url
     )
 
     return {
