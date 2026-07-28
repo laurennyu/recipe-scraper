@@ -17,3 +17,4 @@ class Recipe(BaseModel):
     yields: str | None = None
     image: str | None = None
     source: str
+    date: str | None = None

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from recipe_scrapers import scrape_html
 from ingredient_parser import parse_ingredient
 
@@ -36,5 +38,6 @@ def parse_recipe(request: RecipeRequest):
         total_time=scraper.total_time(),
         yields=scraper.yields(),
         image=scraper.image(),
-        source=request.url
+        source=request.url,
+        date=datetime.now().strftime("%B %d, %Y")
     )
