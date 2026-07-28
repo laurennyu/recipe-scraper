@@ -1,19 +1,103 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Recipe Saver</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            width: 500px;
+            border: none;
+        }
+
+        .card {
+            background: #fcfaf7;
+            border: none;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .closeButton {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            border: none;
+            background: transparent;
+            color: #7a6e5f;
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 6px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2f2a24;
+        }
+
+        p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #6f655a;
+        }
+
+        button {
+            border: 1px solid #d8cdbd;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2f2a24;
+            cursor: pointer;
+            background: #f0e7db;
+            transition: background 0.16s ease, transform 0.16s ease;
+        }
+
+        button:hover {
+            background: #e8dcc9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: progress;
+        }
+
+        .status {
+            min-height: 18px;
+            font-size: 12px;
+            color: #7a6e5f;
+        }
+    </style>
 </head>
-
 <body>
-    <h2>Recipe Saver</h2>
-
-    <button id="saveButton">
-        Save Recipe
-    </button>
+    <div class="card">
+        <button id="closeButton" class="closeButton" aria-label="Close">×</button>
+        <h1>Recipe Saver</h1>
+        <p>Save the current page as a recipe file.</p>
+        <button id="saveButton">Save Recipe</button>
+        <div id="statusMessage" class="status" aria-live="polite">Ready</div>
+    </div>
 
     <script src="popup.js"></script>
 </body>
-
 </html>
