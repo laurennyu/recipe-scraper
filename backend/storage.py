@@ -4,7 +4,7 @@ from pathlib import Path
 
 from models import Recipe
 
-SAVE_DIR = Path(os.path.abspath("recipes"))
+SAVE_DIR = Path(os.path.abspath("../recipes"))
 SAVE_DIR.mkdir(exist_ok=True)
 
 def save_recipe(recipe: Recipe):
