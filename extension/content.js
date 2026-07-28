@@ -1,9 +1,15 @@
-chrome.runtime.onMessage.addListener((message) => {
-
-    if (message.action !== "saveRecipe")
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (!message || !message.action) {
         return;
+    }
 
-    fetch("http://localhost:8000/save", {
+    const endpoint = message.action === "previewRecipe" ? "/preview" : message.action === "saveRecipe" ? "/save" : null;
+
+    if (!endpoint) {
+        return;
+    }
+
+    fetch(`http://localhost:8000${endpoint}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -12,6 +18,10 @@ chrome.runtime.onMessage.addListener((message) => {
             url: window.location.href,
             html: document.documentElement.outerHTML
         })
-    });
+    })
+        .then((response) => response.json())
+        .then((data) => sendResponse({ ok: true, recipe: data }))
+        .catch((error) => sendResponse({ ok: false, error: error.message }));
 
+    return true;
 });

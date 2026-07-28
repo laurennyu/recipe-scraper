@@ -15,14 +15,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.post("/preview")
+def preview(request: RecipeRequest):
+    recipe = parse_recipe(request)
+    return recipe.model_dump()
+
 @app.post("/save")
 def save(request: RecipeRequest):
-    # Parse the recipe from the request
     recipe = parse_recipe(request)
-
-    # Save the recipe to storage
     save_recipe(recipe)
 
     return {
-        "status": "success"
+        "status": "success",
+        "recipe": recipe.model_dump()
     }

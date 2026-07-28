@@ -36,7 +36,7 @@
             right: 8px;
             border: none;
             background: transparent;
-            color: #7a6e5f;
+            color: #3e5a14;
             font-size: 18px;
             cursor: pointer;
             line-height: 1;
@@ -47,7 +47,7 @@
             margin: 0;
             font-size: 18px;
             font-weight: 600;
-            color: #2f2a24;
+            color: #526534;
         }
 
         p {
@@ -58,19 +58,19 @@
         }
 
         button {
-            border: 1px solid #d8cdbd;
+            border: 1px solid #7e965a;
             border-radius: 10px;
             padding: 10px 14px;
             font-size: 13px;
             font-weight: 600;
-            color: #2f2a24;
+            color: #526534;
             cursor: pointer;
-            background: #f0e7db;
+            background: #dce9c8;
             transition: background 0.16s ease, transform 0.16s ease;
         }
 
         button:hover {
-            background: #e8dcc9;
+            background: #c8d8b0;
         }
 
         button:active {
@@ -84,6 +84,41 @@
 
         .status {
             min-height: 18px;
+            font-size: 13px;
+            color: #52761b;
+        }
+
+        .previewBox {
+            border-top: 1px solid #e7dfd3;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .previewBox h2 {
+            margin: 0;
+            font-size: 15px;
+            color: #526534;
+        }
+
+        .previewBox ul {
+            margin: 0;
+            padding-left: 18px;
+            color: #6f655a;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .previewBox ol {
+            margin: 0;
+            padding-left: 18px;
+            color: #6f655a;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .previewMeta {
             font-size: 12px;
             color: #7a6e5f;
         }
@@ -93,9 +128,16 @@
     <div class="card">
         <button id="closeButton" class="closeButton" aria-label="Close">×</button>
         <h1>Recipe Saver</h1>
-        <p>Save the current page as a recipe file.</p>
-        <button id="saveButton">Save Recipe</button>
+        <!-- <p>Save the current page as a recipe file.</p> -->
+        <div id="previewBox" class="previewBox" hidden>
+            <h2 id="previewTitle">Save the current page as a recipe file</h2>
+            <ul id="previewIngredients"></ul>
+            <ol id="previewInstructions"></ol>
+            <div id="previewMeta" class="previewMeta"></div>
+        </div>
+        
         <div id="statusMessage" class="status" aria-live="polite">Ready</div>
+        <button id="saveButton">Preview Recipe</button>
     </div>
 
     <script src="popup.js"></script>
