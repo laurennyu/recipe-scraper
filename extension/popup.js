@@ -6,14 +6,22 @@ const previewTitle = document.getElementById("previewTitle");
 const previewIngredients = document.getElementById("previewIngredients");
 const previewInstructions = document.getElementById("previewInstructions");
 const previewMeta = document.getElementById("previewMeta");
+const contentPanel = document.getElementById("contentPanel");
+const metadataForm = document.getElementById("metadataForm");
+const triedCheckbox = document.getElementById("triedCheckbox");
+const ratingSelect = document.getElementById("ratingSelect");
+const cuisineInput = document.getElementById("cuisineInput");
+const tagGroup = document.getElementById("tagGroup");
 
 let previewedRecipe = null;
+let selectedTags = [];
 
 closeButton.addEventListener("click", () => {
     window.close();
 });
 
 function renderPreview(recipe) {
+    contentPanel.hidden = false;
     previewBox.hidden = false;
     previewTitle.textContent = recipe?.title || "Untitled recipe";
     previewIngredients.innerHTML = "";
@@ -55,6 +63,26 @@ function renderPreview(recipe) {
     }
     previewMeta.textContent = metaParts.join(" • ");
 }
+
+tagGroup.addEventListener("click", (event) => {
+    const chip = event.target.closest(".tagChip");
+    if (!chip) {
+        return;
+    }
+
+    const tag = chip.dataset.tag;
+    if (!tag) {
+        return;
+    }
+
+    chip.classList.toggle("active");
+
+    if (selectedTags.includes(tag)) {
+        selectedTags = selectedTags.filter((item) => item !== tag);
+    } else {
+        selectedTags = [...selectedTags, tag];
+    }
+});
 
 saveButton.addEventListener("click", async () => {
     saveButton.disabled = true;

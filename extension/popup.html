@@ -21,7 +21,7 @@
         }
 
         .card {
-            background: #fcfaf7;
+            background: #f4f2ef;
             border: none;
             padding: 18px;
             display: flex;
@@ -88,18 +88,36 @@
             color: #52761b;
         }
 
-        .previewBox {
+        .contentPanel {
             border-top: 1px solid #e7dfd3;
-            padding-top: 10px;
+            /* display: flex; */
+            flex-direction: column;
+            gap: 8px;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .previewBox {
             display: flex;
             flex-direction: column;
             gap: 6px;
+            padding-bottom: 12px;
+            /* padding: 10px 0px; */
         }
 
-        .previewBox h2 {
+        .contentPanel h2 {
             margin: 0;
             font-size: 15px;
             color: #526534;
+        }
+
+        .previewBox p {
+            margin: 0;
+            color: #6f655a;
+            font-size: 12px;
+            /* line-height: 1.45; */
+            font-weight: bold;
         }
 
         .previewBox ul {
@@ -122,18 +140,106 @@
             font-size: 12px;
             color: #7a6e5f;
         }
+
+        .formSection {
+            border-top: 1px solid #e7dfd3;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .fieldRow {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .fieldRow label {
+            font-size: 12px;
+            color: #526534;
+        }
+
+        .fieldRow select,
+        .fieldRow input {
+            border: 1px solid #cfd8b5;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 11px;
+            background: #fffefb;
+            color: #526534;
+        }
+
+        .tagGroup {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tagChip {
+            border: 1px solid #cfd8b5;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 11px;
+            background: #f6f2e8;
+            color: #526534;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tagChip.active {
+            background: #dce9c8;
+            border-color: #7e965a;
+        }
     </style>
 </head>
 <body>
     <div class="card">
         <button id="closeButton" class="closeButton" aria-label="Close">×</button>
         <h1>Recipe Saver</h1>
-        <!-- <p>Save the current page as a recipe file.</p> -->
-        <div id="previewBox" class="previewBox" hidden>
-            <h2 id="previewTitle">Save the current page as a recipe file</h2>
-            <ul id="previewIngredients"></ul>
-            <ol id="previewInstructions"></ol>
-            <div id="previewMeta" class="previewMeta"></div>
+        <div id="contentPanel" class="contentPanel" hidden>
+            <div id="previewBox" class="previewBox">
+                <h2 id="previewTitle"></h2>
+                <p>Ingredients</p>
+                <ul id="previewIngredients"></ul>
+                <p>Instructions</p>
+                <ol id="previewInstructions"></ol>
+                <div id="previewMeta" class="previewMeta"></div>
+            </div>
+
+            <div id="metadataForm" class="formSection">
+                <h2>Recipe Review</h2>
+                <div class="fieldRow">
+                    <label for="triedCheckbox">Tried</label>
+                    <input id="triedCheckbox" type="checkbox" />
+                </div>
+
+                <div class="fieldRow">
+                    <label for="ratingSelect">Rating</label>
+                    <select id="ratingSelect">
+                        <option value="">Optional</option>
+                        <option value="1">★</option>
+                        <option value="2">★★</option>
+                        <option value="3">★★★</option>
+                    </select>
+                </div>
+
+                <div class="fieldRow">
+                    <label>Tags</label>
+                    <div class="tagGroup" id="tagGroup">
+                        <button type="button" class="tagChip" data-tag="Meal Prep">Meal Prep</button>
+                        <button type="button" class="tagChip" data-tag="Holiday">Holiday</button>
+                        <button type="button" class="tagChip" data-tag="Sweet Treat">Sweet Treat</button>
+                        <button type="button" class="tagChip" data-tag="Everyday">Everyday</button>
+                    </div>
+                </div>
+
+                <div class="fieldRow">
+                    <label for="cuisineInput">Notes</label>
+                    <input id="cuisineInput" type="text" placeholder="e.g. substitutions" />
+                </div>
+            </div>
         </div>
         
         <div id="statusMessage" class="status" aria-live="polite">Ready</div>
