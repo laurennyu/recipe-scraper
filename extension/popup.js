@@ -10,7 +10,7 @@ const contentPanel = document.getElementById("contentPanel");
 const metadataForm = document.getElementById("metadataForm");
 const triedCheckbox = document.getElementById("triedCheckbox");
 const ratingSelect = document.getElementById("ratingSelect");
-const cuisineInput = document.getElementById("cuisineInput");
+const notesInput = document.getElementById("notesInput");
 const tagGroup = document.getElementById("tagGroup");
 
 let previewedRecipe = null;
@@ -72,7 +72,7 @@ function recipeWithReviewFields(recipe) {
         tried: triedCheckbox.checked,
         rating: rating ? Number(rating) : null,
         tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
-        notes: cuisineInput.value.trim() || null
+        notes: notesInput.value.trim() || null
     };
 }
 
