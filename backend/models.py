@@ -18,3 +18,8 @@ class Recipe(BaseModel):
     image: str | None = None
     source: str
     date: str | None = None
+    datetime: str | None = None
+    tried: bool | None = None
+    rating: int | None = None
+    tags: str | None = None
+    notes: str | None = None

@@ -39,5 +39,6 @@ def parse_recipe(request: RecipeRequest):
         yields=scraper.yields(),
         image=scraper.image(),
         source=request.url,
-        date=datetime.now().strftime("%B %d, %Y")
+        date=datetime.now().strftime("%B %d, %Y"),
+        datetime=datetime.now().isoformat(),
     )
