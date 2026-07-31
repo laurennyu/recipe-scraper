@@ -64,6 +64,18 @@ function renderPreview(recipe) {
     previewMeta.textContent = metaParts.join(" • ");
 }
 
+function recipeWithReviewFields(recipe) {
+    const rating = ratingSelect.value;
+
+    return {
+        ...recipe,
+        tried: triedCheckbox.checked,
+        rating: rating ? Number(rating) : null,
+        tags: selectedTags.length > 0 ? selectedTags.join(", ") : null,
+        notes: cuisineInput.value.trim() || null
+    };
+}
+
 tagGroup.addEventListener("click", (event) => {
     const chip = event.target.closest(".tagChip");
     if (!chip) {
@@ -87,7 +99,7 @@ tagGroup.addEventListener("click", (event) => {
 saveButton.addEventListener("click", async () => {
     saveButton.disabled = true;
     saveButton.textContent = "Working...";
-    statusMessage.textContent = "Parsing recipe...";
+    statusMessage.textContent = previewedRecipe ? "Saving recipe..." : "Parsing recipe...";
 
     try {
         const [tab] = await chrome.tabs.query({
@@ -100,9 +112,10 @@ saveButton.addEventListener("click", async () => {
         }
 
         const action = previewedRecipe ? "saveRecipe" : "previewRecipe";
+        const recipeToSave = previewedRecipe ? recipeWithReviewFields(previewedRecipe) : null;
         const response = await chrome.tabs.sendMessage(
             tab.id,
-            previewedRecipe ? { action, recipe: previewedRecipe } : { action }
+            recipeToSave ? { action, recipe: recipeToSave } : { action }
         );
 
         if (response?.recipe) {
@@ -112,6 +125,7 @@ saveButton.addEventListener("click", async () => {
                 saveButton.textContent = "Save Recipe";
                 statusMessage.textContent = "Preview ready. Click save to store it.";
             } else {
+                previewedRecipe = recipeToSave;
                 saveButton.textContent = "Saved";
                 statusMessage.textContent = "Recipe saved to storage.";
             }
