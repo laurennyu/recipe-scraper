@@ -13,6 +13,7 @@ def parse_ingredients(ingredients_list: list[str]) -> list[Ingredient]:
 
     parsed_ingredients = [Ingredient(quantity=str(ingredient.amount[0].quantity) if ingredient.amount else None,
                                      unit=str(ingredient.amount[0].unit) if ingredient.amount else None,
+                                     amount_text=str(ingredient.amount[0].text) if ingredient.amount else None,
                                      name=ingredient.name[0].text)
                                      for ingredient in parsed_ingredients]
     # TODO: Add error handling

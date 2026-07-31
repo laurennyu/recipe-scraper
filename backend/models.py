@@ -7,6 +7,7 @@ class RecipeRequest(BaseModel):
 class Ingredient(BaseModel):
     quantity: str | None = None
     unit: str | None = None
+    amount_text: str | None = None
     name: str
 
 class Recipe(BaseModel):
