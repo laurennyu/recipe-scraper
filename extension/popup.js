@@ -100,7 +100,10 @@ saveButton.addEventListener("click", async () => {
         }
 
         const action = previewedRecipe ? "saveRecipe" : "previewRecipe";
-        const response = await chrome.tabs.sendMessage(tab.id, { action });
+        const response = await chrome.tabs.sendMessage(
+            tab.id,
+            previewedRecipe ? { action, recipe: previewedRecipe } : { action }
+        );
 
         if (response?.recipe) {
             if (!previewedRecipe) {
