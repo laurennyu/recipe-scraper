@@ -20,6 +20,40 @@ closeButton.addEventListener("click", () => {
     window.close();
 });
 
+function displayText(value) {
+    return value === null || value === undefined ? "" : String(value).trim();
+}
+
+function ingredientParts(ingredient) {
+    const amountText = displayText(ingredient?.amount_text)
+        || [displayText(ingredient?.quantity), displayText(ingredient?.unit)]
+            .filter(Boolean)
+            .join(" ");
+    const name = displayText(ingredient?.name);
+
+    return { amountText, name };
+}
+
+function renderIngredient(item, ingredient) {
+    const { amountText, name } = ingredientParts(ingredient);
+
+    if (!amountText && !name) {
+        item.textContent = "Unknown ingredient";
+        return;
+    }
+
+    if (amountText) {
+        item.append(document.createTextNode(name ? `${amountText} ` : amountText));
+    }
+
+    if (name) {
+        const nameElement = document.createElement("span");
+        nameElement.className = "ingredientName";
+        nameElement.textContent = name;
+        item.append(nameElement);
+    }
+}
+
 function renderPreview(recipe) {
     contentPanel.hidden = false;
     previewBox.hidden = false;
@@ -31,8 +65,7 @@ function renderPreview(recipe) {
     if (ingredients.length > 0) {
         ingredients.forEach((ingredient) => {
             const item = document.createElement("li");
-            const name = ingredient?.name || "Unknown ingredient";
-            item.textContent = name;
+            renderIngredient(item, ingredient);
             previewIngredients.appendChild(item);
         });
     } else {

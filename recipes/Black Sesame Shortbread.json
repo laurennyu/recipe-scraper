@@ -1,0 +1,71 @@
+{
+    "title": "Black Sesame Shortbread",
+    "ingredients": [
+        {
+            "quantity": "3/4",
+            "unit": "cup",
+            "amount_text": "3/4 cups",
+            "name": "black sesame seeds",
+            "sentence": "¾ cup/100 grams roasted black sesame seeds (see Tip)"
+        },
+        {
+            "quantity": "1/3",
+            "unit": "cup",
+            "amount_text": "1/3 cups",
+            "name": "granulated sugar",
+            "sentence": "⅓ cup/80 grams granulated sugar"
+        },
+        {
+            "quantity": "3/4",
+            "unit": "teaspoon",
+            "amount_text": "3/4 teaspoons",
+            "name": "fine sea salt",
+            "sentence": "¾ teaspoon fine sea or table salt"
+        },
+        {
+            "quantity": "1",
+            "unit": "cup",
+            "amount_text": "1 cup",
+            "name": "all-purpose flour",
+            "sentence": "1 cup/132 grams all-purpose flour"
+        },
+        {
+            "quantity": "1/2",
+            "unit": "cup",
+            "amount_text": "1/2 cups",
+            "name": "cold unsalted butter",
+            "sentence": "½ cup/114 grams cold unsalted butter, cut into small cubes"
+        },
+        {
+            "quantity": "1",
+            "unit": "teaspoon",
+            "amount_text": "1 teaspoon",
+            "name": "pure vanilla extract",
+            "sentence": "1 teaspoon pure vanilla extract"
+        },
+        {
+            "quantity": "2",
+            "unit": "tablespoon",
+            "amount_text": "2 tablespoons",
+            "name": "white sesame seeds",
+            "sentence": "2 tablespoons white sesame seeds, for sprinkling"
+        }
+    ],
+    "instructions": [
+        "In a food processor, process the black sesame seeds, sugar and salt until the mixture forms a mass around the blade, about 3 minutes. The fat from the seeds should release, and the blend should go from the texture of wet sand to on the verge of becoming pasty. Scrape the bowl and add the flour. Pulse until the flour is evenly incorporated with the seeds into a sandy mixture.",
+        "Add the butter and vanilla, and pulse until the mixture forms a mass around the blade. Transfer to a sheet of plastic wrap and firmly squeeze, and roll into a 2-inch-diameter log. Wrap tightly and refrigerate until firm, at least 1 ½ hours or up to 3 days.",
+        "When ready to bake, heat the oven to 350 degrees with racks in the top and bottom thirds of the oven. Line 2 baking sheets with parchment paper.",
+        "Cut the chilled log into ⅓-inch-thick slices and place on the prepared sheets, spacing ½ inch apart. If any bits of dough crumble off while slicing, pat them back into the rounds. Sprinkle the tops with the white sesame seeds.",
+        "Bake, switching the positions of the sheets halfway through, until the edges are brown and the tops golden brown, 18 to 20 minutes. Cool completely on the sheets on wire racks. The shortbread will keep in an airtight container for up to 5 days."
+    ],
+    "total_time": 45,
+    "yields": "24 cookies",
+    "image": "https://static01.nyt.com/images/2023/01/18/multimedia/13korex1-shortbreads-fkjc/12korex1-shortbreads-fkjc-mediumSquareAt3X.jpg",
+    "source": "https://cooking.nytimes.com/recipes/1023820-black-sesame-shortbread",
+    "date": "July 31, 2026",
+    "datetime": "2026-07-31T21:21:03.782083",
+    "tried": false,
+    "rating": null,
+    "tags": "Sweet Treat, Holiday",
+    "notes": null
+}

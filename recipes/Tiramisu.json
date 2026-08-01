@@ -4,42 +4,58 @@
         {
             "quantity": "3/2",
             "unit": "cup",
-            "name": "heavy whipping cream"
+            "amount_text": "1 1/2 cups",
+            "name": "heavy whipping cream",
+            "sentence": "1 1/2 cups heavy whipping cream (360 ml)"
         },
         {
             "quantity": "1",
             "unit": "container",
-            "name": "mascarpone cheese"
+            "amount_text": "1 container",
+            "name": "mascarpone cheese",
+            "sentence": "8 ounce container mascarpone cheese (,room temperature (225 g))"
         },
         {
             "quantity": "1/3",
             "unit": "cup",
-            "name": "granulated sugar"
+            "amount_text": "1/3 cups",
+            "name": "granulated sugar",
+            "sentence": "1/3 cup granulated sugar (67 g)"
         },
         {
             "quantity": "1",
             "unit": "teaspoon",
-            "name": "vanilla extract"
+            "amount_text": "1 teaspoon",
+            "name": "vanilla extract",
+            "sentence": "1 teaspoon vanilla extract (5 ml)"
         },
         {
             "quantity": "3/2",
             "unit": "cup",
-            "name": "cold espresso"
+            "amount_text": "1 1/2 cups",
+            "name": "cold espresso",
+            "sentence": "1 1/2 cups cold espresso (, prepared (360 ml))"
         },
         {
             "quantity": "3",
             "unit": "Tablespoons",
-            "name": "coffee flavored liqueur"
+            "amount_text": "3 Tablespoons",
+            "name": "coffee flavored liqueur",
+            "sentence": "3 Tablespoons coffee flavored liqueur (,optional (Kahlua or DaVinci brands) (45 ml))"
         },
         {
             "quantity": "1",
             "unit": "package",
-            "name": "Lady Fingers"
+            "amount_text": "1 package",
+            "name": "Lady Fingers",
+            "sentence": "1 package Lady Fingers (,Savoiardi brand can be found in the cookie aisle at your local grocery store, or online)"
         },
         {
             "quantity": null,
             "unit": null,
-            "name": "Cocoa powder"
+            "amount_text": null,
+            "name": "Cocoa powder",
+            "sentence": "Cocoa powder for dusting the top"
         }
     ],
     "instructions": [
@@ -53,9 +69,9 @@
     "image": "https://tastesbetterfromscratch.com/wp-content/uploads/2017/04/Tiramisu-15.jpg",
     "source": "https://tastesbetterfromscratch.com/easy-tiramisu/",
     "date": "July 31, 2026",
-    "datetime": "2026-07-31T17:07:10.649729",
-    "tried": null,
-    "rating": null,
-    "tags": null,
-    "notes": null
+    "datetime": "2026-07-31T21:09:18.557396",
+    "tried": true,
+    "rating": 3,
+    "tags": "Sweet Treat",
+    "notes": "less Kahlua"
 }

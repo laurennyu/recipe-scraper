@@ -7,16 +7,25 @@ from models import Recipe, RecipeRequest, Ingredient
 
 def parse_ingredients(ingredients_list: list[str]) -> list[Ingredient]:
     print("Parsing ingredients list for amounts/units/item names")
-    # Parse each ingredient in the list
-    parsed_ingredients = [parse_ingredient(ingredient) for ingredient in ingredients_list]
-    print(parsed_ingredients)
+    parsed_ingredients = []
+    for raw_ingredient in ingredients_list:
+        sentence = str(raw_ingredient or "").strip()
+        if not sentence:
+            continue
 
-    parsed_ingredients = [Ingredient(quantity=str(ingredient.amount[0].quantity) if ingredient.amount else None,
-                                     unit=str(ingredient.amount[0].unit) if ingredient.amount else None,
-                                     amount_text=str(ingredient.amount[0].text) if ingredient.amount else None,
-                                     name=ingredient.name[0].text)
-                                     for ingredient in parsed_ingredients]
-    # TODO: Add error handling
+        try:
+            parsed = parse_ingredient(sentence)
+            amount = (getattr(parsed, "amount", None) or [None])[0]
+            name = (getattr(parsed, "name", None) or [None])[0]
+            parsed_ingredients.append(Ingredient(
+                quantity=str(amount.quantity) if amount and amount.quantity is not None else None,
+                unit=str(amount.unit) if amount and amount.unit else None,
+                amount_text=str(amount.text) if amount and amount.text else None,
+                name=str(name.text) if name and name.text else sentence,
+                sentence=getattr(parsed, "sentence", None) or sentence,
+            ))
+        except Exception:
+            parsed_ingredients.append(Ingredient(name=sentence, sentence=sentence))
 
     print("Parsed ingredients:", parsed_ingredients)
     return parsed_ingredients

@@ -9,6 +9,7 @@ class Ingredient(BaseModel):
     unit: str | None = None
     amount_text: str | None = None
     name: str
+    sentence: str | None = None
 
 class Recipe(BaseModel):
     title: str

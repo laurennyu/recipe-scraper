@@ -12,10 +12,11 @@ def save_recipe(recipe: Recipe):
     path = os.path.join(SAVE_DIR, filename)
     print(f"Saving recipe {recipe.title} to {path}")
 
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(
             recipe.model_dump(),
             f,
-            indent=4
+            indent=4,
+            ensure_ascii=False,
         )
         print(f"Recipe {recipe.title} saved to {path}")
