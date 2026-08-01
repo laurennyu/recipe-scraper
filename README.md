@@ -11,6 +11,7 @@ Instead of bookmarking recipes or copying them into notes, this project extracts
 * Save a recipe from a web page with one click
 * Parse recipes into structured JSON
 * Store recipes locally
+* Browse saved recipes in a clean local dashboard
 * Designed for easy searching and future AI processing
 * Built primarily in Python
 
@@ -59,6 +60,7 @@ recipe-scraper/
 │   ├── storage.py
 │   └── models.py
 ├── recipes/
+├── dashboard.html
 └── README.md
 ```
 
@@ -153,6 +155,10 @@ The server will start on:
 ```
 http://localhost:8000
 ```
+
+Open that address in your browser to view the dashboard. It separates recipes
+you have tried from recipes to try, and shows each recipe's rating, tags, and
+a link back to its source.
 
 #### 3. Load the Chrome extension
 

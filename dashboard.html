@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recipe Shelf</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f7f4;
+      color: #243129;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    main {
+      width: min(1040px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 72px 0 96px;
+    }
+
+    header {
+      margin-bottom: 54px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #6b756e;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.55rem, 7vw, 4.5rem);
+      font-weight: 400;
+      letter-spacing: -.055em;
+      line-height: .98;
+    }
+
+    .refresh-button {
+      flex: 0 0 auto;
+      border: 1px solid #d4dbd4;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #fff;
+      color: #536157;
+      font: inherit;
+      font-size: .82rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .refresh-button:hover {
+      border-color: #aebbae;
+      background: #f2f6f0;
+    }
+    .refresh-button:disabled {
+      cursor: wait;
+      opacity: .65;
+    }
+
+    .intro {
+      margin: 18px 0 0;
+      color: #69736b;
+      font-size: 1rem;
+    }
+
+    .section + .section {
+      margin-top: 58px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #d9ded8;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.04rem;
+      font-weight: 700;
+    }
+
+    .count {
+      color: #7d8780;
+      font-size: .9rem;
+    }
+
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .recipe-card {
+      display: flex;
+      /* min-height: 164px; */
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 22px;
+      border: 1px solid #e0e3de;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgb(32 48 38 / .025);
+    }
+
+    .recipe-card h3 {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.3;
+    }
+
+    .recipe-card a {
+      color: inherit;
+      text-decoration-color: #aebbb0;
+      text-underline-offset: 3px;
+      transition: color .16s ease, text-decoration-color .16s ease, background .16s ease, transform .16s ease;
+    }
+    .recipe-card h3 a:hover {
+      color: #42654a;
+      text-decoration-color: currentColor;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 auto;
+    }
+
+    .rating, .tag {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: .78rem;
+      line-height: 1;
+    }
+
+    .rating {
+      background: #f7f0d8;
+      color: #80651a;
+      letter-spacing: .04em;
+    }
+
+    .tag {
+      background: #edf2ea;
+      color: #526653;
+    }
+
+    .source {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 22px;
+      color: #6a756c !important;
+      font-size: .82rem;
+      font-weight: 650;
+      text-decoration: none !important;
+    }
+    .source::after {
+      content: " ↗";
+      display: inline-block;
+      transition: transform .16s ease;
+    }
+    .source:hover {
+      border-radius: 5px;
+      background: #edf2ea;
+      color: #315d3b !important;
+      outline: 4px solid #edf2ea;
+    }
+    .source:hover::after { transform: translate(2px, -2px); }
+
+    .empty {
+      margin: 0;
+      padding: 24px 0;
+      color: #79827b;
+      font-size: .95rem;
+    }
+
+    .status {
+      color: #79827b;
+    }
+    .error {
+      color: #a64b46;
+    }
+
+    @media (max-width: 560px) {
+      main { width: min(100% - 32px, 1040px); padding-top: 48px; }
+      header { margin-bottom: 40px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Recipe collection</p>
+      <div class="title-row">
+        <h1>Recipe shelf</h1>
+        <button id="refresh-button" class="refresh-button" type="button">Refresh</button>
+      </div>
+      <p class="intro">A small home for what you’ve cooked and what’s next.</p>
+    </header>
+
+    <section class="section" aria-labelledby="tried-heading">
+      <div class="section-heading">
+        <h2 id="tried-heading">Tried recipes</h2>
+        <span id="tried-count" class="count"></span>
+      </div>
+      <div id="tried-recipes" class="recipe-grid" aria-live="polite"><p class="status">Loading recipes…</p></div>
+    </section>
+
+    <section class="section" aria-labelledby="to-try-heading">
+      <div class="section-heading">
+        <h2 id="to-try-heading">Recipes to try</h2>
+        <span id="to-try-count" class="count"></span>
+      </div>
+      <div id="to-try-recipes" class="recipe-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    const sections = {
+      tried: {
+        container: document.getElementById("tried-recipes"),
+        count: document.getElementById("tried-count"),
+        empty: "No tried recipes yet."
+      },
+      toTry: {
+        container: document.getElementById("to-try-recipes"),
+        count: document.getElementById("to-try-count"),
+        empty: "Your recipe queue is clear."
+      }
+    };
+    const refreshButton = document.getElementById("refresh-button");
+
+    function addText(parent, className, value) {
+      const element = document.createElement("span");
+      element.className = className;
+      element.textContent = value;
+      parent.append(element);
+    }
+
+    function sourceDomain(source) {
+      try {
+        return new URL(source).hostname.replace(/^www\./, "");
+      } catch {
+        return "Recipe source";
+      }
+    }
+
+    function recipeCard(recipe) {
+      const card = document.createElement("article");
+      card.className = "recipe-card";
+
+      const title = document.createElement("h3");
+      const link = document.createElement("a");
+      link.href = recipe.source;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.textContent = recipe.title || "Untitled recipe";
+      title.append(link);
+      card.append(title);
+
+      const metadata = document.createElement("div");
+      metadata.className = "meta";
+      if (recipe.rating != null) addText(metadata, "rating", "★".repeat(recipe.rating));
+      String(recipe.tags || "").split(",").map(tag => tag.trim()).filter(Boolean)
+        .forEach(tag => addText(metadata, "tag", tag));
+      if (metadata.childElementCount) card.append(metadata);
+
+      const source = document.createElement("a");
+      source.className = "source";
+      source.href = recipe.source;
+      source.target = "_blank";
+      source.rel = "noreferrer";
+      source.textContent = sourceDomain(recipe.source);
+      source.setAttribute("aria-label", `Open ${recipe.title || "recipe"} on ${source.textContent}`);
+      card.append(source);
+      return card;
+    }
+
+    function render(section, recipes) {
+      section.container.replaceChildren();
+      section.count.textContent = `${recipes.length} ${recipes.length === 1 ? "recipe" : "recipes"}`;
+      if (!recipes.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = section.empty;
+        section.container.append(empty);
+        return;
+      }
+      recipes.forEach(recipe => section.container.append(recipeCard(recipe)));
+    }
+
+    async function loadRecipes() {
+      refreshButton.disabled = true;
+      refreshButton.textContent = "Refreshing…";
+      try {
+        const response = await fetch("/api/recipes");
+        if (!response.ok) throw new Error("Could not load recipes");
+        const recipes = await response.json();
+        render(sections.tried, recipes.filter(recipe => recipe.tried === true));
+        render(sections.toTry, recipes.filter(recipe => recipe.tried !== true));
+      } catch (error) {
+        [sections.tried, sections.toTry].forEach(section => {
+          section.container.replaceChildren();
+          section.count.textContent = "";
+          const message = document.createElement("p");
+          message.className = "empty error";
+          message.textContent = "Recipes could not be loaded. Please try again.";
+          section.container.append(message);
+        });
+      } finally {
+        refreshButton.disabled = false;
+        refreshButton.textContent = "Refresh";
+      }
+    }
+
+    refreshButton.addEventListener("click", loadRecipes);
+    loadRecipes();
+  </script>
+</body>
+</html>
