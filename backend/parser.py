@@ -1,9 +1,18 @@
 from datetime import datetime
 
 from recipe_scrapers import scrape_html
+from recipe_scrapers._exceptions import SchemaOrgException
 from ingredient_parser import parse_ingredient
 
 from models import Recipe, RecipeRequest, Ingredient
+
+
+def optional_value(scraper, method_name: str):
+    """Read optional scraper metadata without rejecting an otherwise valid recipe."""
+    try:
+        return getattr(scraper, method_name)()
+    except SchemaOrgException:
+        return None
 
 def parse_ingredients(ingredients_list: list[str]) -> list[Ingredient]:
     print("Parsing ingredients list for amounts/units/item names")
@@ -45,9 +54,9 @@ def parse_recipe(request: RecipeRequest):
         title=scraper.title(),
         ingredients=ingredients_list,
         instructions=scraper.instructions_list(),
-        total_time=scraper.total_time(),
-        yields=scraper.yields(),
-        image=scraper.image(),
+        total_time=optional_value(scraper, "total_time"),
+        yields=optional_value(scraper, "yields"),
+        image=optional_value(scraper, "image"),
         source=request.url,
         date=datetime.now().strftime("%B %d, %Y"),
         datetime=datetime.now().isoformat(),
