@@ -130,13 +130,23 @@
       line-height: 1.3;
     }
 
-    .recipe-card a {
+    .recipe-card a, .recipe-title-button {
       color: inherit;
       text-decoration-color: #aebbb0;
       text-underline-offset: 3px;
       transition: color .16s ease, text-decoration-color .16s ease, background .16s ease, transform .16s ease;
     }
-    .recipe-card h3 a:hover {
+    .recipe-title-button {
+      appearance: none;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      font: inherit;
+      font-weight: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .recipe-card h3 a:hover, .recipe-title-button:hover {
       color: #42654a;
       text-decoration-color: currentColor;
     }
@@ -202,6 +212,66 @@
       color: #a64b46;
     }
 
+    .recipe-dialog {
+      width: min(900px, calc(100% - 32px));
+      max-height: min(850px, calc(100dvh - 32px));
+      margin: auto;
+      padding: 0;
+      border: 1px solid #dfe4dc;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgb(24 39 29 / .24);
+      color: #243129;
+      overflow: hidden;
+    }
+    .recipe-dialog::backdrop { background: rgb(27 36 29 / .42); backdrop-filter: blur(3px); }
+    .dialog-content { max-height: inherit; overflow-y: auto; }
+    .dialog-cover {
+      width: 100%;
+      height: 220px;
+      display: block;
+      object-fit: cover;
+      background: linear-gradient(135deg, #e6eee2, #f7f2df);
+    }
+    .dialog-cover[hidden] { display: none; }
+    .dialog-body { padding: 34px clamp(24px, 6vw, 64px) 56px; }
+    .dialog-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 7px;
+      background: rgb(255 255 255 / .88);
+      color: #536157;
+      font-size: 1.45rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .dialog-close:hover { background: #f0f3ee; color: #243129; }
+    .dialog-page-icon { font-size: 2rem; line-height: 1; margin-bottom: 14px; }
+    .dialog-title { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 400; letter-spacing: -.045em; line-height: 1.03; }
+    .properties { margin: 28px 0 34px; border-top: 1px solid #e6e9e4; border-bottom: 1px solid #e6e9e4; }
+    .property { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding: 11px 0; font-size: .9rem; }
+    .property + .property { border-top: 1px solid #f0f1ef; }
+    .property-label { color: #7a837c; }
+    .property-value { color: #334137; }
+    .property-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dialog-section + .dialog-section { margin-top: 36px; }
+    .dialog-section h3 { margin: 0 0 14px; font-size: 1.05rem; }
+    .ingredient-list, .instruction-list { margin: 0; padding-left: 22px; color: #465149; line-height: 1.6; }
+    .ingredient-list li + li, .instruction-list li + li { margin-top: 8px; }
+    .ingredient-amount { color: #7a837c; }
+    .notes { margin: 0; color: #465149; line-height: 1.6; white-space: pre-wrap; }
+    .dialog-source { color: #42654a; font-size: .9rem; font-weight: 650; text-underline-offset: 3px; }
+    @media (max-width: 560px) {
+      .recipe-dialog { width: 100%; max-height: 100dvh; border: 0; border-radius: 0; }
+      .dialog-cover { height: 160px; }
+      .dialog-body { padding: 28px 24px 44px; }
+      .property { grid-template-columns: 88px minmax(0, 1fr); gap: 10px; }
+    }
+
     @media (max-width: 560px) {
       main { width: min(100% - 32px, 1040px); padding-top: 48px; }
       header { margin-bottom: 40px; }
@@ -236,6 +306,21 @@
     </section>
   </main>
 
+  <dialog id="recipe-dialog" class="recipe-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-content">
+      <img id="dialog-cover" class="dialog-cover" alt="">
+      <button id="dialog-close" class="dialog-close" type="button" aria-label="Close recipe">×</button>
+      <article class="dialog-body">
+        <div class="dialog-page-icon" aria-hidden="true">🍽️</div>
+        <h2 id="dialog-title" class="dialog-title"></h2>
+        <div id="dialog-properties" class="properties"></div>
+        <section class="dialog-section"><h3>Ingredients</h3><ul id="dialog-ingredients" class="ingredient-list"></ul></section>
+        <section class="dialog-section"><h3>Instructions</h3><ol id="dialog-instructions" class="instruction-list"></ol></section>
+        <section id="dialog-notes-section" class="dialog-section" hidden><h3>Notes</h3><p id="dialog-notes" class="notes"></p></section>
+      </article>
+    </div>
+  </dialog>
+
   <script>
     const sections = {
       tried: {
@@ -250,6 +335,15 @@
       }
     };
     const refreshButton = document.getElementById("refresh-button");
+    const recipeDialog = document.getElementById("recipe-dialog");
+    const dialogClose = document.getElementById("dialog-close");
+    const dialogCover = document.getElementById("dialog-cover");
+    const dialogTitle = document.getElementById("dialog-title");
+    const dialogProperties = document.getElementById("dialog-properties");
+    const dialogIngredients = document.getElementById("dialog-ingredients");
+    const dialogInstructions = document.getElementById("dialog-instructions");
+    const dialogNotes = document.getElementById("dialog-notes");
+    const dialogNotesSection = document.getElementById("dialog-notes-section");
 
     function addText(parent, className, value) {
       const element = document.createElement("span");
@@ -266,17 +360,88 @@
       }
     }
 
+    function displayText(value) {
+      return value == null ? "" : String(value).trim();
+    }
+
+    function ingredientText(ingredient) {
+      const amount = displayText(ingredient?.amount_text) || [displayText(ingredient?.quantity), displayText(ingredient?.unit)].filter(Boolean).join(" ");
+      const name = displayText(ingredient?.name) || displayText(ingredient?.sentence);
+      return { amount, name };
+    }
+
+    function addProperty(label, content) {
+      const row = document.createElement("div");
+      row.className = "property";
+      const propertyLabel = document.createElement("span");
+      propertyLabel.className = "property-label";
+      propertyLabel.textContent = label;
+      const value = document.createElement("div");
+      value.className = "property-value";
+      if (content instanceof Node) value.append(content); else value.textContent = content;
+      row.append(propertyLabel, value);
+      dialogProperties.append(row);
+    }
+
+    function openRecipe(recipe, opener) {
+      dialogTitle.textContent = recipe.title || "Untitled recipe";
+      dialogCover.hidden = !recipe.image;
+      dialogCover.src = recipe.image || "";
+      dialogCover.alt = recipe.image ? `${dialogTitle.textContent} finished dish` : "";
+      dialogProperties.replaceChildren();
+      addProperty("Status", recipe.tried ? "Tried" : "To try");
+      if (recipe.total_time) addProperty("Time", `${recipe.total_time} min`);
+      if (recipe.yields) addProperty("Serves", recipe.yields);
+      if (recipe.rating != null) addProperty("Rating", "★".repeat(recipe.rating));
+      const tags = String(recipe.tags || "").split(",").map(tag => tag.trim()).filter(Boolean);
+      if (tags.length) {
+        const tagList = document.createElement("div");
+        tagList.className = "property-tags";
+        tags.forEach(tag => addText(tagList, "tag", tag));
+        addProperty("Tags", tagList);
+      }
+      if (recipe.source) {
+        const source = document.createElement("a");
+        source.className = "dialog-source";
+        source.href = recipe.source;
+        source.target = "_blank";
+        source.rel = "noreferrer";
+        source.textContent = `View original · ${sourceDomain(recipe.source)} ↗`;
+        addProperty("Source", source);
+      }
+      if (recipe.date) addProperty("Saved", recipe.date);
+      dialogIngredients.replaceChildren();
+      const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
+      ingredients.forEach(ingredient => {
+        const item = document.createElement("li");
+        const { amount, name } = ingredientText(ingredient);
+        if (amount) { const amountElement = document.createElement("span"); amountElement.className = "ingredient-amount"; amountElement.textContent = `${amount} `; item.append(amountElement); }
+        item.append(name || "Unknown ingredient");
+        dialogIngredients.append(item);
+      });
+      if (!ingredients.length) { const item = document.createElement("li"); item.textContent = "No ingredients were found."; dialogIngredients.append(item); }
+      dialogInstructions.replaceChildren();
+      const instructions = Array.isArray(recipe.instructions) ? recipe.instructions : [];
+      instructions.forEach(instruction => { const item = document.createElement("li"); item.textContent = instruction; dialogInstructions.append(item); });
+      if (!instructions.length) { const item = document.createElement("li"); item.textContent = "No instructions were found."; dialogInstructions.append(item); }
+      dialogNotesSection.hidden = !recipe.notes;
+      dialogNotes.textContent = recipe.notes || "";
+      recipeDialog.showModal();
+      dialogClose.focus();
+      recipeDialog.addEventListener("close", () => opener?.focus(), { once: true });
+    }
+
     function recipeCard(recipe) {
       const card = document.createElement("article");
       card.className = "recipe-card";
 
       const title = document.createElement("h3");
-      const link = document.createElement("a");
-      link.href = recipe.source;
-      link.target = "_blank";
-      link.rel = "noreferrer";
-      link.textContent = recipe.title || "Untitled recipe";
-      title.append(link);
+      const titleButton = document.createElement("button");
+      titleButton.className = "recipe-title-button";
+      titleButton.type = "button";
+      titleButton.textContent = recipe.title || "Untitled recipe";
+      titleButton.addEventListener("click", () => openRecipe(recipe, titleButton));
+      title.append(titleButton);
       card.append(title);
 
       const metadata = document.createElement("div");
@@ -335,6 +500,8 @@
     }
 
     refreshButton.addEventListener("click", loadRecipes);
+    dialogClose.addEventListener("click", () => recipeDialog.close());
+    recipeDialog.addEventListener("click", event => { if (event.target === recipeDialog) recipeDialog.close(); });
     loadRecipes();
   </script>
 </body>
