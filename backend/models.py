@@ -5,6 +5,7 @@ class RecipeRequest(BaseModel):
     html: str
 
 class Ingredient(BaseModel):
+    id: int | None = None
     quantity: str | None = None
     unit: str | None = None
     amount_text: str | None = None
@@ -25,3 +26,8 @@ class Recipe(BaseModel):
     rating: int | None = None
     tags: str | None = None
     notes: str | None = None
+
+
+class RecipeUpdateRequest(BaseModel):
+    original_title: str
+    recipe: Recipe

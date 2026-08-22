@@ -250,6 +250,25 @@
       cursor: pointer;
     }
     .dialog-close:hover { background: #f0f3ee; color: #243129; }
+    .dialog-edit, .dialog-save, .dialog-cancel {
+      position: absolute;
+      top: 16px;
+      border: 1px solid #d9ded8;
+      border-radius: 7px;
+      padding: 7px 10px;
+      background: rgb(255 255 255 / .9);
+      color: #536157;
+      font: inherit;
+      font-size: .82rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .dialog-edit { right: 58px; }
+    .dialog-save { right: 132px; background: #456d4d; border-color: #456d4d; color: #fff; }
+    .dialog-cancel { right: 207px; }
+    .dialog-edit:hover, .dialog-cancel:hover { background: #f0f3ee; color: #243129; }
+    .dialog-save:hover { background: #365b3d; }
+    .dialog-save:disabled { cursor: wait; opacity: .7; }
     .dialog-page-icon { font-size: 2rem; line-height: 1; margin-bottom: 14px; }
     .dialog-title { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 400; letter-spacing: -.045em; line-height: 1.03; }
     .properties { margin: 28px 0 34px; border-top: 1px solid #e6e9e4; border-bottom: 1px solid #e6e9e4; }
@@ -265,11 +284,41 @@
     .ingredient-amount { color: #7a837c; }
     .notes { margin: 0; color: #465149; line-height: 1.6; white-space: pre-wrap; }
     .dialog-source { color: #42654a; font-size: .9rem; font-weight: 650; text-underline-offset: 3px; }
+    .edit-form { margin-top: 26px; }
+    .edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .edit-field { display: flex; flex-direction: column; gap: 6px; color: #667168; font-size: .8rem; font-weight: 700; }
+    .edit-field.full { grid-column: 1 / -1; }
+    .edit-field input, .edit-field textarea, .edit-field select {
+      width: 100%;
+      border: 1px solid #d8ded6;
+      border-radius: 7px;
+      padding: 9px 10px;
+      background: #fff;
+      color: #28352d;
+      font: inherit;
+      font-size: .92rem;
+      font-weight: 400;
+    }
+    .edit-field textarea { min-height: 112px; resize: vertical; line-height: 1.5; }
+    .ingredient-editor { display: flex; flex-direction: column; gap: 8px; }
+    .ingredient-editor-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 10px; border: 1px solid #e1e5df; border-radius: 7px; background: #fbfcfa; color: #344137; font-weight: 400; }
+    .ingredient-editor-actions { display: flex; gap: 5px; flex: 0 0 auto; }
+    .ingredient-action, .add-ingredient { border: 1px solid #d4dbd4; border-radius: 6px; padding: 5px 8px; background: #fff; color: #536157; font: inherit; font-size: .78rem; cursor: pointer; }
+    .ingredient-action.delete { color: #9b4944; }
+    .ingredient-editor-row.editing { display: grid; grid-template-columns: 90px 100px minmax(140px, 1fr) auto; }
+    .ingredient-editor-row.editing input { min-width: 0; padding: 7px 8px; }
     @media (max-width: 560px) {
       .recipe-dialog { width: 100%; max-height: 100dvh; border: 0; border-radius: 0; }
       .dialog-cover { height: 160px; }
       .dialog-body { padding: 28px 24px 44px; }
       .property { grid-template-columns: 88px minmax(0, 1fr); gap: 10px; }
+      .edit-grid { grid-template-columns: 1fr; }
+      .edit-field.full { grid-column: auto; }
+      .dialog-save { right: 58px; }
+      .dialog-cancel { right: 132px; }
+      .ingredient-editor-row.editing { grid-template-columns: 1fr 1fr; }
+      .ingredient-editor-row.editing input:last-of-type { grid-column: 1 / -1; }
+      .ingredient-editor-row.editing .ingredient-editor-actions { grid-column: 1 / -1; }
     }
 
     @media (max-width: 560px) {
@@ -310,13 +359,31 @@
     <div class="dialog-content">
       <img id="dialog-cover" class="dialog-cover" alt="">
       <button id="dialog-close" class="dialog-close" type="button" aria-label="Close recipe">×</button>
+      <button id="dialog-edit" class="dialog-edit" type="button">Edit</button>
+      <button id="dialog-save" class="dialog-save" type="button" hidden>Save</button>
+      <button id="dialog-cancel" class="dialog-cancel" type="button" hidden>Cancel</button>
       <article class="dialog-body">
         <div class="dialog-page-icon" aria-hidden="true">🍽️</div>
         <h2 id="dialog-title" class="dialog-title"></h2>
+        <input id="dialog-title-input" class="dialog-title" type="text" aria-label="Recipe title" hidden>
         <div id="dialog-properties" class="properties"></div>
-        <section class="dialog-section"><h3>Ingredients</h3><ul id="dialog-ingredients" class="ingredient-list"></ul></section>
-        <section class="dialog-section"><h3>Instructions</h3><ol id="dialog-instructions" class="instruction-list"></ol></section>
+        <section id="dialog-ingredients-section" class="dialog-section"><h3>Ingredients</h3><ul id="dialog-ingredients" class="ingredient-list"></ul></section>
+        <section id="dialog-instructions-section" class="dialog-section"><h3>Instructions</h3><ol id="dialog-instructions" class="instruction-list"></ol></section>
         <section id="dialog-notes-section" class="dialog-section" hidden><h3>Notes</h3><p id="dialog-notes" class="notes"></p></section>
+        <form id="dialog-edit-form" class="edit-form" hidden>
+          <div class="edit-grid">
+            <label class="edit-field">Status<select name="tried"><option value="false">To try</option><option value="true">Tried</option></select></label>
+            <label class="edit-field">Rating<select name="rating"><option value="">No rating</option><option value="1">★</option><option value="2">★★</option><option value="3">★★★</option></select></label>
+            <label class="edit-field">Time (minutes)<input name="total_time" type="number" min="0"></label>
+            <label class="edit-field">Serves / yields<input name="yields" type="text"></label>
+            <label class="edit-field full">Tags <input name="tags" type="text" placeholder="Separate tags with commas"></label>
+            <label class="edit-field full">Image URL <input name="image" type="url"></label>
+            <label class="edit-field full">Source URL <input name="source" type="text" required></label>
+            <section class="edit-field full"><span>Ingredients</span><div id="ingredient-editor" class="ingredient-editor"></div><button id="add-ingredient" class="add-ingredient" type="button">Add ingredient</button></section>
+            <label class="edit-field full">Instructions<textarea name="instructions" placeholder="Use one step per line."></textarea></label>
+            <label class="edit-field full">Notes<textarea name="notes"></textarea></label>
+          </div>
+        </form>
       </article>
     </div>
   </dialog>
@@ -337,13 +404,27 @@
     const refreshButton = document.getElementById("refresh-button");
     const recipeDialog = document.getElementById("recipe-dialog");
     const dialogClose = document.getElementById("dialog-close");
+    const dialogEdit = document.getElementById("dialog-edit");
+    const dialogSave = document.getElementById("dialog-save");
+    const dialogCancel = document.getElementById("dialog-cancel");
     const dialogCover = document.getElementById("dialog-cover");
     const dialogTitle = document.getElementById("dialog-title");
+    const dialogTitleInput = document.getElementById("dialog-title-input");
     const dialogProperties = document.getElementById("dialog-properties");
     const dialogIngredients = document.getElementById("dialog-ingredients");
     const dialogInstructions = document.getElementById("dialog-instructions");
     const dialogNotes = document.getElementById("dialog-notes");
     const dialogNotesSection = document.getElementById("dialog-notes-section");
+    const dialogIngredientsSection = document.getElementById("dialog-ingredients-section");
+    const dialogInstructionsSection = document.getElementById("dialog-instructions-section");
+    const dialogEditForm = document.getElementById("dialog-edit-form");
+    const ingredientEditor = document.getElementById("ingredient-editor");
+    const addIngredientButton = document.getElementById("add-ingredient");
+    let activeRecipe = null;
+    let activeOpener = null;
+    let editableIngredients = [];
+    let editingIngredientKey = null;
+    let newIngredientNumber = 0;
 
     function addText(parent, className, value) {
       const element = document.createElement("span");
@@ -370,6 +451,136 @@
       return { amount, name };
     }
 
+    function editableIngredientKey(ingredient, index) {
+      return ingredient.id == null ? `saved-${index}` : `ingredient-${ingredient.id}`;
+    }
+
+    function renderIngredientEditor() {
+      ingredientEditor.replaceChildren();
+      if (!editableIngredients.length) {
+        return;
+      }
+
+      editableIngredients.forEach(record => {
+        const row = document.createElement("div");
+        row.className = "ingredient-editor-row";
+        if (editingIngredientKey === record.key) {
+          row.classList.add("editing");
+          const quantity = document.createElement("input");
+          quantity.value = record.ingredient.quantity || "";
+          quantity.placeholder = "Quantity";
+          const unit = document.createElement("input");
+          unit.value = record.ingredient.unit || "";
+          unit.placeholder = "Unit";
+          const name = document.createElement("input");
+          name.value = record.ingredient.name || "";
+          name.placeholder = "Ingredient name";
+          name.required = true;
+          const actions = document.createElement("div");
+          actions.className = "ingredient-editor-actions";
+          const done = document.createElement("button");
+          done.type = "button";
+          done.className = "ingredient-action";
+          done.textContent = "Done";
+          done.addEventListener("click", () => {
+            const nextName = name.value.trim();
+            if (!nextName) { name.reportValidity(); name.focus(); return; }
+            record.ingredient.quantity = quantity.value.trim() || null;
+            record.ingredient.unit = unit.value.trim() || null;
+            record.ingredient.name = nextName;
+            editingIngredientKey = null;
+            renderIngredientEditor();
+          });
+          const cancel = document.createElement("button");
+          cancel.type = "button";
+          cancel.className = "ingredient-action";
+          cancel.textContent = "Cancel";
+          cancel.addEventListener("click", () => {
+            if (record.isNew) editableIngredients = editableIngredients.filter(item => item.key !== record.key);
+            editingIngredientKey = null;
+            renderIngredientEditor();
+          });
+          actions.append(done, cancel);
+          row.append(quantity, unit, name, actions);
+        } else {
+          const text = document.createElement("span");
+          const { amount, name } = ingredientText(record.ingredient);
+          text.textContent = [amount, name].filter(Boolean).join(" ") || "Unnamed ingredient";
+          const actions = document.createElement("div");
+          actions.className = "ingredient-editor-actions";
+          const edit = document.createElement("button");
+          edit.type = "button";
+          edit.className = "ingredient-action";
+          edit.textContent = "Edit";
+          edit.addEventListener("click", () => { editingIngredientKey = record.key; renderIngredientEditor(); });
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "ingredient-action delete";
+          remove.textContent = "Delete";
+          remove.addEventListener("click", () => {
+            editableIngredients = editableIngredients.filter(item => item.key !== record.key);
+            renderIngredientEditor();
+          });
+          actions.append(edit, remove);
+          row.append(text, actions);
+        }
+        ingredientEditor.append(row);
+      });
+    }
+
+    function setEditMode(editing) {
+      dialogEdit.hidden = editing;
+      dialogSave.hidden = !editing;
+      dialogCancel.hidden = !editing;
+      dialogTitle.hidden = editing;
+      dialogTitleInput.hidden = !editing;
+      dialogProperties.hidden = editing;
+      dialogIngredientsSection.hidden = editing;
+      dialogInstructionsSection.hidden = editing;
+      dialogNotesSection.hidden = editing || !activeRecipe?.notes;
+      dialogEditForm.hidden = !editing;
+      if (editing) dialogTitleInput.focus();
+    }
+
+    function fillEditForm(recipe) {
+      const fields = dialogEditForm.elements;
+      dialogTitleInput.value = recipe.title || "";
+      fields.tried.value = String(recipe.tried === true);
+      fields.rating.value = recipe.rating ?? "";
+      fields.total_time.value = recipe.total_time ?? "";
+      fields.yields.value = recipe.yields || "";
+      fields.tags.value = recipe.tags || "";
+      fields.image.value = recipe.image || "";
+      fields.source.value = recipe.source || "";
+      editableIngredients = (recipe.ingredients || []).map((ingredient, index) => ({
+        key: editableIngredientKey(ingredient, index),
+        ingredient: { ...ingredient }
+      }));
+      editingIngredientKey = null;
+      renderIngredientEditor();
+      fields.instructions.value = (recipe.instructions || []).join("\n");
+      fields.notes.value = recipe.notes || "";
+    }
+
+    function editedRecipe() {
+      const fields = dialogEditForm.elements;
+      const ingredients = editableIngredients.map(record => record.ingredient);
+      return {
+        ...activeRecipe,
+        title: dialogTitleInput.value.trim(),
+        tried: fields.tried.value === "true",
+        rating: fields.rating.value ? Number(fields.rating.value) : null,
+        total_time: fields.total_time.value ? Number(fields.total_time.value) : null,
+        yields: fields.yields.value.trim() || null,
+        tags: fields.tags.value.trim() || null,
+        image: fields.image.value.trim() || null,
+        source: fields.source.value.trim(),
+        ingredients,
+        instructions: fields.instructions.value.split("\n").map(line => line.trim()).filter(Boolean),
+        notes: fields.notes.value.trim() || null
+      };
+    }
+
     function addProperty(label, content) {
       const row = document.createElement("div");
       row.className = "property";
@@ -384,6 +595,8 @@
     }
 
     function openRecipe(recipe, opener) {
+      activeRecipe = recipe;
+      activeOpener = opener;
       dialogTitle.textContent = recipe.title || "Untitled recipe";
       dialogCover.hidden = !recipe.image;
       dialogCover.src = recipe.image || "";
@@ -426,9 +639,9 @@
       if (!instructions.length) { const item = document.createElement("li"); item.textContent = "No instructions were found."; dialogInstructions.append(item); }
       dialogNotesSection.hidden = !recipe.notes;
       dialogNotes.textContent = recipe.notes || "";
-      recipeDialog.showModal();
+      setEditMode(false);
+      if (!recipeDialog.open) recipeDialog.showModal();
       dialogClose.focus();
-      recipeDialog.addEventListener("close", () => opener?.focus(), { once: true });
     }
 
     function recipeCard(recipe) {
@@ -501,6 +714,48 @@
 
     refreshButton.addEventListener("click", loadRecipes);
     dialogClose.addEventListener("click", () => recipeDialog.close());
+    dialogEdit.addEventListener("click", () => { fillEditForm(activeRecipe); setEditMode(true); });
+    dialogCancel.addEventListener("click", () => setEditMode(false));
+    addIngredientButton.addEventListener("click", () => {
+      const key = `new-${newIngredientNumber++}`;
+      editableIngredients.push({
+        key,
+        isNew: true,
+        ingredient: { id: null, quantity: null, unit: null, amount_text: null, name: "", sentence: null }
+      });
+      editingIngredientKey = key;
+      renderIngredientEditor();
+    });
+    dialogSave.addEventListener("click", async () => {
+      if (editingIngredientKey !== null) {
+        window.alert("Finish editing the ingredient before saving the recipe.");
+        return;
+      }
+      const updatedRecipe = editedRecipe();
+      dialogTitleInput.setCustomValidity(updatedRecipe.title ? "" : "Recipe needs a title.");
+      if (!dialogTitleInput.reportValidity() || !dialogEditForm.reportValidity()) {
+        return;
+      }
+      dialogSave.disabled = true;
+      dialogSave.textContent = "Saving…";
+      try {
+        const response = await fetch("/api/recipes/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ original_title: activeRecipe.title, recipe: updatedRecipe })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.detail || "Could not save changes.");
+        openRecipe(result, activeOpener);
+        loadRecipes();
+      } catch (error) {
+        window.alert(error.message || "Could not save changes.");
+      } finally {
+        dialogSave.disabled = false;
+        dialogSave.textContent = "Save";
+      }
+    });
+    recipeDialog.addEventListener("close", () => activeOpener?.focus());
     recipeDialog.addEventListener("click", event => { if (event.target === recipeDialog) recipeDialog.close(); });
     loadRecipes();
   </script>
