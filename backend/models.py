@@ -4,6 +4,11 @@ class RecipeRequest(BaseModel):
     url: str
     html: str
 
+
+class RecipeURLRequest(BaseModel):
+    url: str
+
+
 class Ingredient(BaseModel):
     id: int | None = None
     quantity: str | None = None

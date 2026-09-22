@@ -356,6 +356,12 @@
           <button id="refresh-button" class="refresh-button" type="button">Refresh</button>
         </div>
       </div>
+      <form id="url-save-form" class="url-save-form" style="margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <label for="recipe-url-input" style="font-weight: 650; color: #536157;">Add from URL</label>
+        <input id="recipe-url-input" type="url" placeholder="https://example.com/recipe" style="flex: 1 1 260px; min-height: 42px; border: 1px solid #d4dbd4; border-radius: 9px; padding: 9px 12px; font: inherit;">
+        <button type="submit" class="refresh-button">Save recipe</button>
+        <span id="recipe-url-status" style="font-size: 0.82rem; color: #57685f; min-height: 20px;"> </span>
+      </form>
       <p class="intro">A small home for what you’ve cooked and what’s next.</p>
     </header>
 
@@ -442,6 +448,9 @@
       }
     };
     const refreshButton = document.getElementById("refresh-button");
+    const urlSaveForm = document.getElementById("url-save-form");
+    const recipeUrlInput = document.getElementById("recipe-url-input");
+    const recipeUrlStatus = document.getElementById("recipe-url-status");
     const collectionOwner = document.getElementById("collection-owner");
     const loginButton = document.getElementById("login-button");
     const accountDialog = document.getElementById("account-dialog");
@@ -814,6 +823,35 @@
         refreshButton.disabled = false;
         refreshButton.textContent = "Refresh";
       }
+    }
+
+    if (urlSaveForm) {
+      urlSaveForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!activeUsername) {
+          recipeUrlStatus.textContent = "Choose a username before saving a recipe.";
+          return;
+        }
+        const url = recipeUrlInput.value.trim();
+        if (!url) {
+          recipeUrlStatus.textContent = "Enter a recipe URL first.";
+          return;
+        }
+        try {
+          const response = await fetch("/api/recipes/from-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...accountHeaders() },
+            body: JSON.stringify({ url })
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.detail || "Could not save recipe from URL.");
+          recipeUrlStatus.textContent = `Saved: ${result.title}`;
+          recipeUrlInput.value = "";
+          await loadRecipes();
+        } catch (error) {
+          recipeUrlStatus.textContent = error.message || "Could not save recipe from URL.";
+        }
+      });
     }
 
     refreshButton.addEventListener("click", loadRecipes);
