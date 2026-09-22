@@ -1,4 +1,8 @@
 from pathlib import Path
+from dotenv import load_dotenv
+
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(PROJECT_DIR / ".env")
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +13,6 @@ from parser import parse_recipe
 from storage import list_recipes, list_users, normalize_username, save_recipe, select_user, update_recipe
 
 app = FastAPI()
-PROJECT_DIR = Path(__file__).resolve().parent.parent
 
 app.add_middleware(
     CORSMiddleware,
