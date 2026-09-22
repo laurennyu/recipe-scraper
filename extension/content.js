@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         ? `${endpoint}?username=${encodeURIComponent(message.username)}`
         : endpoint;
 
-    fetch(`http://localhost:8000${requestPath}`, {
+    fetch(`https://recipe-scraper-ffis.onrender.com${requestPath}`, {
         method: "POST",
         headers,
         body: JSON.stringify(body)
