@@ -16,11 +16,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             html: document.documentElement.outerHTML
         };
 
-    fetch(`http://localhost:8000${endpoint}`, {
+    const headers = {
+        "Content-Type": "application/json"
+    };
+    if (message.action === "saveRecipe" && message.username) {
+        headers["X-Recipe-Username"] = message.username;
+    }
+
+    const requestPath = message.action === "saveRecipe" && message.username
+        ? `${endpoint}?username=${encodeURIComponent(message.username)}`
+        : endpoint;
+
+    fetch(`http://localhost:8000${requestPath}`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers,
         body: JSON.stringify(body)
     })
         .then(async (response) => {

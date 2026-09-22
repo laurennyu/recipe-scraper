@@ -36,13 +36,14 @@
       justify-content: space-between;
       gap: 24px;
     }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
 
     .eyebrow {
       margin: 0 0 12px;
       color: #6b756e;
-      font-size: .78rem;
+      font-size: 1rem;
       font-weight: 700;
-      letter-spacing: .11em;
+      letter-spacing: .04em;
       text-transform: uppercase;
     }
 
@@ -81,6 +82,23 @@
       color: #69736b;
       font-size: 1rem;
     }
+
+    .account-dialog { width: min(420px, calc(100% - 32px)); margin: auto; padding: 0; border: 1px solid #dfe4dc; border-radius: 14px; background: #fff; box-shadow: 0 24px 70px rgb(24 39 29 / .24); color: #243129; }
+    .account-dialog::backdrop { background: rgb(27 36 29 / .42); backdrop-filter: blur(3px); }
+    .account-dialog-body { padding: 30px; }
+    .account-dialog h2 { font-family: Georgia, "Times New Roman", serif; font-size: 2rem; font-weight: 400; letter-spacing: -.035em; }
+    .account-dialog p { color: #69736b; line-height: 1.5; }
+    .account-controls { display: flex; flex-direction: column; align-items: stretch; gap: 10px; margin-top: 22px; }
+    .account-controls label { color: #6b756e; font-size: .84rem; font-weight: 650; }
+    .account-controls input, .account-controls select { min-height: 40px; border: 1px solid #d4dbd4; border-radius: 8px; padding: 7px 9px; background: #fff; color: #334137; font: inherit; font-size: .9rem; }
+    .account-button { min-height: 36px; border: 1px solid #456d4d; border-radius: 8px; padding: 7px 11px; background: #456d4d; color: #fff; font: inherit; font-size: .84rem; font-weight: 650; cursor: pointer; }
+    .add-account-button { border: 0; padding: 2px 0; background: transparent; color: #42654a; font: inherit; font-size: .86rem; font-weight: 650; text-align: left; cursor: pointer; }
+    .add-account-button:hover { text-decoration: underline; }
+    .new-account-fields { display: flex; flex-direction: column; gap: 10px; }
+    .new-account-fields[hidden] { display: none; }
+    .account-message { margin: 0; color: #79827b !important; font-size: .82rem; }
+    .account-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border: 0; border-radius: 7px; background: transparent; color: #536157; font-size: 1.35rem; cursor: pointer; }
+    .account-close:hover { background: #f0f3ee; }
 
     .section + .section {
       margin-top: 58px;
@@ -330,10 +348,13 @@
 <body>
   <main>
     <header>
-      <p class="eyebrow">Recipe collection</p>
+      <p id="collection-owner" class="eyebrow">Recipe collection</p>
       <div class="title-row">
         <h1>Recipe shelf</h1>
-        <button id="refresh-button" class="refresh-button" type="button">Refresh</button>
+        <div class="header-actions">
+          <button id="login-button" class="refresh-button" type="button">Login</button>
+          <button id="refresh-button" class="refresh-button" type="button">Refresh</button>
+        </div>
       </div>
       <p class="intro">A small home for what you’ve cooked and what’s next.</p>
     </header>
@@ -354,6 +375,25 @@
       <div id="to-try-recipes" class="recipe-grid" aria-live="polite"></div>
     </section>
   </main>
+
+  <dialog id="account-dialog" class="account-dialog" aria-labelledby="account-title">
+    <div class="account-dialog-body">
+      <button id="account-close" class="account-close" type="button" aria-label="Close login">×</button>
+      <h2 id="account-title">Your recipe shelf</h2>
+      <p>Enter a username to start a personal collection, or switch to an existing account.</p>
+      <form id="account-form" class="account-controls">
+        <label for="account-select">Existing accounts</label>
+        <select id="account-select" aria-label="Saved accounts"><option value="">Choose an account</option></select>
+        <button id="add-account-button" class="add-account-button" type="button">Add a new username</button>
+        <div id="new-account-fields" class="new-account-fields" hidden>
+          <label for="username-input">New username</label>
+          <input id="username-input" type="text" maxlength="50" placeholder="Enter a username" autocomplete="username" disabled>
+          <button class="account-button" type="submit">Continue</button>
+        </div>
+        <p id="account-message" class="account-message">Your recipes stay on this device.</p>
+      </form>
+    </div>
+  </dialog>
 
   <dialog id="recipe-dialog" class="recipe-dialog" aria-labelledby="dialog-title">
     <div class="dialog-content">
@@ -402,6 +442,16 @@
       }
     };
     const refreshButton = document.getElementById("refresh-button");
+    const collectionOwner = document.getElementById("collection-owner");
+    const loginButton = document.getElementById("login-button");
+    const accountDialog = document.getElementById("account-dialog");
+    const accountClose = document.getElementById("account-close");
+    const accountForm = document.getElementById("account-form");
+    const accountSelect = document.getElementById("account-select");
+    const addAccountButton = document.getElementById("add-account-button");
+    const newAccountFields = document.getElementById("new-account-fields");
+    const usernameInput = document.getElementById("username-input");
+    const accountMessage = document.getElementById("account-message");
     const recipeDialog = document.getElementById("recipe-dialog");
     const dialogClose = document.getElementById("dialog-close");
     const dialogEdit = document.getElementById("dialog-edit");
@@ -425,6 +475,49 @@
     let editableIngredients = [];
     let editingIngredientKey = null;
     let newIngredientNumber = 0;
+    let activeUsername = localStorage.getItem("recipe-shelf-username") || "";
+
+    function accountHeaders() {
+      return activeUsername ? { "X-Recipe-Username": activeUsername } : {};
+    }
+
+    function updateCollectionOwner() {
+      collectionOwner.textContent = activeUsername ? `${activeUsername}'s` : "Recipe collection";
+    }
+
+    function setAddingAccount(isAdding) {
+      newAccountFields.hidden = !isAdding;
+      usernameInput.disabled = !isAdding;
+      usernameInput.required = isAdding;
+      addAccountButton.hidden = isAdding;
+      if (isAdding) {
+        usernameInput.value = "";
+        usernameInput.focus();
+      }
+    }
+
+    async function loadUsers() {
+      const response = await fetch("/api/users");
+      if (!response.ok) throw new Error("Could not load accounts.");
+      const users = await response.json();
+      accountSelect.replaceChildren(new Option("Choose an account", ""));
+      users.forEach(user => accountSelect.add(new Option(user.username, user.username)));
+      accountSelect.value = activeUsername;
+    }
+
+    async function useAccount(username) {
+      const response = await fetch(`/api/users/select?username=${encodeURIComponent(username)}`, { method: "POST" });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || "Could not select account.");
+      activeUsername = result.username;
+      localStorage.setItem("recipe-shelf-username", activeUsername);
+      updateCollectionOwner();
+      usernameInput.value = activeUsername;
+      accountMessage.textContent = `Viewing ${activeUsername}'s recipes.`;
+      await loadUsers();
+      await loadRecipes();
+      accountDialog.close();
+    }
 
     function addText(parent, className, value) {
       const element = document.createElement("span");
@@ -689,10 +782,21 @@
     }
 
     async function loadRecipes() {
+      if (!activeUsername) {
+        [sections.tried, sections.toTry].forEach(section => {
+          section.container.replaceChildren();
+          section.count.textContent = "";
+          const message = document.createElement("p");
+          message.className = "empty";
+          message.textContent = "Choose a username to view recipes.";
+          section.container.append(message);
+        });
+        return;
+      }
       refreshButton.disabled = true;
       refreshButton.textContent = "Refreshing…";
       try {
-        const response = await fetch("/api/recipes");
+        const response = await fetch("/api/recipes", { headers: accountHeaders() });
         if (!response.ok) throw new Error("Could not load recipes");
         const recipes = await response.json();
         render(sections.tried, recipes.filter(recipe => recipe.tried === true));
@@ -713,6 +817,33 @@
     }
 
     refreshButton.addEventListener("click", loadRecipes);
+    loginButton.addEventListener("click", () => {
+      accountMessage.textContent = activeUsername
+        ? `Signed in as ${activeUsername}.`
+        : "Your recipes stay on this device.";
+      if (!accountDialog.open) accountDialog.showModal();
+      setAddingAccount(false);
+      accountSelect.focus();
+    });
+    accountClose.addEventListener("click", () => accountDialog.close());
+    accountDialog.addEventListener("click", event => { if (event.target === accountDialog) accountDialog.close(); });
+    addAccountButton.addEventListener("click", () => setAddingAccount(true));
+    accountForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      try {
+        await useAccount(usernameInput.value);
+      } catch (error) {
+        accountMessage.textContent = error.message || "Could not select account.";
+      }
+    });
+    accountSelect.addEventListener("change", async () => {
+      if (!accountSelect.value) return;
+      try {
+        await useAccount(accountSelect.value);
+      } catch (error) {
+        accountMessage.textContent = error.message || "Could not switch account.";
+      }
+    });
     dialogClose.addEventListener("click", () => recipeDialog.close());
     dialogEdit.addEventListener("click", () => { fillEditForm(activeRecipe); setEditMode(true); });
     dialogCancel.addEventListener("click", () => setEditMode(false));
@@ -741,7 +872,7 @@
       try {
         const response = await fetch("/api/recipes/update", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...accountHeaders() },
           body: JSON.stringify({ original_title: activeRecipe.title, recipe: updatedRecipe })
         });
         const result = await response.json();
@@ -757,7 +888,14 @@
     });
     recipeDialog.addEventListener("close", () => activeOpener?.focus());
     recipeDialog.addEventListener("click", event => { if (event.target === recipeDialog) recipeDialog.close(); });
-    loadRecipes();
+    loadUsers().then(() => {
+      if (activeUsername) {
+        usernameInput.value = activeUsername;
+        updateCollectionOwner();
+        accountMessage.textContent = `Viewing ${activeUsername}'s recipes.`;
+      }
+      return loadRecipes();
+    }).catch(() => { accountMessage.textContent = "Accounts could not be loaded."; });
   </script>
 </body>
 </html>
