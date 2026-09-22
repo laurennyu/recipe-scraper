@@ -1,10 +1,24 @@
 from datetime import datetime
+from urllib.request import Request, urlopen
 
 from recipe_scrapers import scrape_html
 from recipe_scrapers._exceptions import SchemaOrgException
 from ingredient_parser import parse_ingredient
 
 from models import Recipe, RecipeRequest, Ingredient
+
+
+def fetch_recipe_html(url: str) -> str:
+    """Fetch page HTML from a recipe URL for server-side parsing."""
+    request = Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; RecipeSaverBot/1.0; +https://example.com)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+    )
+    with urlopen(request, timeout=30) as response:
+        return response.read().decode("utf-8", errors="replace")
 
 
 def optional_value(scraper, method_name: str):

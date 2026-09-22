@@ -8,8 +8,8 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from models import Recipe, RecipeRequest, RecipeUpdateRequest
-from parser import parse_recipe
+from models import Recipe, RecipeRequest, RecipeUpdateRequest, RecipeURLRequest
+from parser import fetch_recipe_html, parse_recipe
 from storage import list_recipes, list_users, normalize_username, save_recipe, select_user, update_recipe
 
 app = FastAPI()
@@ -83,3 +83,20 @@ def save(recipe: Recipe, username: str = Depends(current_username)):
         "status": "success",
         "recipe": recipe.model_dump()
     }
+
+
+@app.post("/api/recipes/from-url", response_model=Recipe)
+def save_recipe_from_url(request: RecipeURLRequest, username: str = Depends(current_username)):
+    """Fetch a recipe by URL, parse it, and persist it to the active user's storage."""
+    try:
+        html = fetch_recipe_html(request.url)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Could not fetch recipe page: {exc}") from exc
+
+    try:
+        recipe = parse_recipe(RecipeRequest(url=request.url, html=html))
+        save_recipe(recipe, username)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"Could not parse recipe from URL: {exc}") from exc
+
+    return recipe
