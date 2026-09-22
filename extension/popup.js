@@ -12,9 +12,98 @@ const triedCheckbox = document.getElementById("triedCheckbox");
 const ratingSelect = document.getElementById("ratingSelect");
 const notesInput = document.getElementById("notesInput");
 const tagGroup = document.getElementById("tagGroup");
+const accountForm = document.getElementById("accountForm");
+const accountSelect = document.getElementById("accountSelect");
+const activeAccount = document.getElementById("activeAccount");
+const activeAccountName = document.getElementById("activeAccountName");
+const changeAccountButton = document.getElementById("changeAccountButton");
+const accountChooser = document.getElementById("accountChooser");
+const addAccountButton = document.getElementById("addAccountButton");
+const newAccountFields = document.getElementById("newAccountFields");
+const usernameInput = document.getElementById("usernameInput");
+const accountHint = document.getElementById("accountHint");
 
 let previewedRecipe = null;
 let selectedTags = [];
+let activeUsername = "";
+
+function setAddingAccount(isAdding) {
+    newAccountFields.hidden = !isAdding;
+    usernameInput.disabled = !isAdding;
+    usernameInput.required = isAdding;
+    addAccountButton.hidden = isAdding;
+    if (isAdding) {
+        usernameInput.value = "";
+        usernameInput.focus();
+    }
+}
+
+function updateAccountUI() {
+    const hasAccount = Boolean(activeUsername);
+    activeAccount.hidden = !hasAccount;
+    accountChooser.hidden = hasAccount;
+    activeAccountName.textContent = hasAccount ? `Saving as ${activeUsername}` : "";
+    if (!hasAccount) setAddingAccount(false);
+}
+
+async function loadAccounts() {
+    const response = await fetch("http://localhost:8000/api/users");
+    if (!response.ok) throw new Error("Could not load accounts.");
+    const users = await response.json();
+    accountSelect.replaceChildren(new Option("Choose account", ""));
+    users.forEach((user) => accountSelect.add(new Option(user.username, user.username)));
+    accountSelect.value = activeUsername;
+}
+
+async function useAccount(username) {
+    const response = await fetch(`http://localhost:8000/api/users/select?username=${encodeURIComponent(username)}`, { method: "POST" });
+    const account = await response.json();
+    if (!response.ok) throw new Error(account.detail || "Could not select account.");
+    activeUsername = account.username;
+    localStorage.setItem("recipeSaverUsername", activeUsername);
+    usernameInput.value = activeUsername;
+    accountHint.textContent = `Saving recipes to ${activeUsername}'s account.`;
+    await loadAccounts();
+    updateAccountUI();
+}
+
+accountForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+        await useAccount(usernameInput.value);
+    } catch (error) {
+        accountHint.textContent = error.message || "Could not select account.";
+    }
+});
+
+accountSelect.addEventListener("change", async () => {
+    if (!accountSelect.value) return;
+    try {
+        await useAccount(accountSelect.value);
+    } catch (error) {
+        accountHint.textContent = error.message || "Could not switch account.";
+    }
+});
+
+addAccountButton.addEventListener("click", () => setAddingAccount(true));
+changeAccountButton.addEventListener("click", () => {
+    accountChooser.hidden = false;
+    activeAccount.hidden = true;
+    setAddingAccount(false);
+    accountSelect.focus();
+});
+
+(async () => {
+    activeUsername = localStorage.getItem("recipeSaverUsername") || "";
+    usernameInput.value = activeUsername;
+    updateAccountUI();
+    if (activeUsername) accountHint.textContent = `Saving recipes to ${activeUsername}'s account.`;
+    try {
+        await loadAccounts();
+    } catch {
+        accountHint.textContent = "Start the local server to choose an account.";
+    }
+})();
 
 closeButton.addEventListener("click", () => {
     window.close();
@@ -130,6 +219,10 @@ tagGroup.addEventListener("click", (event) => {
 });
 
 saveButton.addEventListener("click", async () => {
+    if (previewedRecipe && !activeUsername) {
+        statusMessage.textContent = "Choose an account before saving.";
+        return;
+    }
     saveButton.disabled = true;
     saveButton.textContent = "Working...";
     statusMessage.textContent = previewedRecipe ? "Saving recipe..." : "Parsing recipe...";
@@ -144,12 +237,26 @@ saveButton.addEventListener("click", async () => {
             throw new Error("No active tab found.");
         }
 
-        const action = previewedRecipe ? "saveRecipe" : "previewRecipe";
         const recipeToSave = previewedRecipe ? recipeWithReviewFields(previewedRecipe) : null;
-        const response = await chrome.tabs.sendMessage(
-            tab.id,
-            recipeToSave ? { action, recipe: recipeToSave } : { action }
-        );
+        let response;
+        if (recipeToSave) {
+            const saveResponse = await fetch(
+                `http://localhost:8000/save?username=${encodeURIComponent(activeUsername)}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Recipe-Username": activeUsername
+                    },
+                    body: JSON.stringify(recipeToSave)
+                }
+            );
+            const data = await saveResponse.json();
+            if (!saveResponse.ok) throw new Error(data.detail || "Could not save recipe.");
+            response = { recipe: data.recipe };
+        } else {
+            response = await chrome.tabs.sendMessage(tab.id, { action: "previewRecipe" });
+        }
 
         if (response?.recipe) {
             if (!previewedRecipe) {
@@ -163,10 +270,10 @@ saveButton.addEventListener("click", async () => {
                 statusMessage.textContent = "Recipe saved to storage.";
             }
         } else {
-            throw new Error("No recipe data received.");
+            throw new Error(response?.error || "No recipe data received.");
         }
     } catch (error) {
-        statusMessage.textContent = "Unable to process recipe.";
+        statusMessage.textContent = error.message || "Unable to process recipe.";
         saveButton.textContent = previewedRecipe ? "Save Recipe" : "Preview Recipe";
     } finally {
         saveButton.disabled = false;

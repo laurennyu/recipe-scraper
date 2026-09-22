@@ -12,6 +12,7 @@ Instead of bookmarking recipes or copying them into notes, this project extracts
 * Parse recipes into structured JSON
 * Store recipes locally
 * Browse saved recipes in a clean local dashboard
+* Keep separate local recipe collections for different usernames
 * Designed for easy searching and future AI processing
 * Built primarily in Python
 
@@ -106,7 +107,9 @@ It returns a recipe object with:
 
 ### Storage
 
-The storage layer in [backend/storage.py](backend/storage.py) writes each recipe as a JSON file into the recipes folder. The current filename format is based on the recipe title.
+Choose a username in either the dashboard or extension before saving. The storage layer maps the normalized username to a safe folder name in `recipes/users.json`, then stores that person's recipes in `recipes/accounts/<mapped-folder>/`. Username matching is case-insensitive, so `Alice` and `alice` use the same collection.
+
+Existing JSON files directly in `recipes/` are left untouched; they are not assigned to a new username automatically.
 
 ---
 
@@ -169,7 +172,7 @@ a link back to its source.
 
 #### 4. Save a recipe
 
-Open a supported recipe page, click the extension icon, and choose Save Recipe.
+Open a supported recipe page, click the extension icon, choose or enter an account, and then choose Save Recipe. You can switch accounts from the extension or the dashboard at any time.
 
 ---
 

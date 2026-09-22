@@ -88,6 +88,31 @@
             color: #52761b;
         }
 
+        .accountPanel {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            padding: 14px;
+            border: 1px solid #dfe4dc;
+            border-radius: 12px;
+            background: #fff;
+        }
+        .accountPanel label { font-size: 12px; color: #526534; font-weight: 600; }
+        .accountPanel input, .accountPanel select { min-height: 36px; border: 1px solid #d4dbd4; border-radius: 8px; padding: 7px 9px; color: #334137; font: inherit; font-size: 12px; background: #fff; }
+        .accountPanel button { padding: 8px 10px; font-size: 12px; }
+        .addAccountButton { border: 0; padding: 2px 0 !important; background: transparent; color: #42654a; text-align: left; }
+        .addAccountButton:hover { background: transparent; text-decoration: underline; }
+        .newAccountFields { display: flex; flex-direction: column; gap: 10px; }
+        .newAccountFields[hidden] { display: none; }
+        .accountHint { color: #6f655a; font-size: 11px; }
+        .activeAccount { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .activeAccount[hidden] { display: none; }
+        .activeAccount strong { color: #334137; font-size: 13px; }
+        .changeAccountButton { border: 1px solid #d4dbd4 !important; padding: 6px 8px !important; background: #fff !important; color: #536157 !important; }
+        .changeAccountButton:hover { background: #f0f3ee !important; }
+        .accountChooser[hidden] { display: none; }
+
         .contentPanel {
             border-top: 1px solid #e7dfd3;
             /* display: flex; */
@@ -202,6 +227,23 @@
     <div class="card">
         <button id="closeButton" class="closeButton" aria-label="Close">×</button>
         <h1>Recipe Saver</h1>
+        <form id="accountForm" class="accountPanel">
+            <div id="activeAccount" class="activeAccount" hidden>
+                <strong id="activeAccountName"></strong>
+                <button id="changeAccountButton" class="changeAccountButton" type="button">Change account</button>
+            </div>
+            <div id="accountChooser" class="accountChooser">
+                <label for="accountSelect">Existing accounts</label>
+                <select id="accountSelect"><option value="">Choose account</option></select>
+                <button id="addAccountButton" class="addAccountButton" type="button">Add a new username</button>
+                <div id="newAccountFields" class="newAccountFields" hidden>
+                    <label for="usernameInput">New username</label>
+                    <input id="usernameInput" type="text" maxlength="50" placeholder="Enter a username" autocomplete="username" disabled />
+                    <button type="submit">Continue</button>
+                </div>
+                <span id="accountHint" class="accountHint">Choose an account before saving.</span>
+            </div>
+        </form>
         <div id="contentPanel" class="contentPanel" hidden>
             <div id="previewBox" class="previewBox">
                 <h2 id="previewTitle"></h2>
