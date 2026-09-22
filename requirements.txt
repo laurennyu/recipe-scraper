@@ -3,3 +3,5 @@ uvicorn
 pydantic
 python-dotenv
 supabase
+recipe-scrapers
+ingredient-parser-nlp
